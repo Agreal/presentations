@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Promise Object Example</title>
+  <meta name="description" content="Promise Object Example">
+  <meta name="author" content="Agreal Qin">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui"/>
+  <link rel="stylesheet" href="bootstrap.min.css"/>
+  <link rel="stylesheet" href="../../lib/css/zenburn.css">
+  <script src="angular.min.js"></script>
+  <script> var app = angular.module('app', []); </script>
+</head>
+<body class="container" ng-app="app">
+  <div class="row">
+    <div class="col-md-6" ng-controller="test1Ctrl as vm">
+      <p> Example 1 </p>
+      <p> <button class="btn btn-primary" type="button" ng-click="vm.showResults()">查看用户权限</button> </p>
+      <p ng-bind="vm.results|json" style="border:1px solid #ccc; height: 2.4rem;"></p>
+    </div>
+    <div class="col-md-6">
+      <pre><code>
+app.controller('test1Ctrl', function($q, $http) {
+  var vm = this;
+
+  vm.showResults = function() {
+    $q.resolve('tokenId12306')
+      .then(getUserByTokenId)
+      .then(function(response) {
+        return response.data.id;
+      })
+      .then(getPermissionByUserId)
+      .then(displayResults);
+  };
+
+  function getUserByTokenId(tokenId) {
+    return $http.get('user.json', {params: {tokenId: tokenId}});
+  }
+  function getPermissionByUserId(userId) {
+    return $http.get('permissions.json', {params: {userId: userId}});
+  }
+  function displayResults(response) {
+    vm.results = response.data;
+  }
+});
+      </code></pre>
+      <script type="text/javascript">
+        app.controller('test1Ctrl', function($q, $http) {
+          var vm = this;
+
+          vm.showResults = function() {
+            $q.resolve('tokenId12306')
+              .then(getUserByTokenId)
+              .then(function(response) {
+                return response.data.id;
+              })
+              .then(getPermissionByUserId)
+              .then(displayResults);
+          };
+
+          function getUserByTokenId(tokenId) {
+            return $http.get('user.json', {params: {tokenId: tokenId}});
+          }
+          function getPermissionByUserId(userId) {
+            return $http.get('permissions.json', {params: {userId: userId}});
+          }
+          function displayResults(response) {
+            vm.results = response.data;
+          }
+        });
+      </script>
+    </div>
+  </div>
+
+  <div class="row" ng-controller="test2Ctrl as vm">
+    <div class="col-md-6">
+      <p> Example 2</p>
+      <p> <button class="btn btn-primary" type="button" ng-click="vm.showResults()">查看用户权限</button> </p>
+      <p ng-bind="vm.results|json" style="border:1px solid #ccc; height: 2.4rem;"></p>
+    </div>
+    <div class="col-md-6">
+      <pre><code>
+app.controller('test2Ctrl', function($q, $http) {
+  var vm = this;
+
+  vm.showResults = function() {
+    $q.resolve('tokenId12306')
+      .then(getUserByTokenId)
+      .then(null, function() {
+        return 'userId';
+      })
+      .then(getPermissionByUserId)
+      .catch(function() {
+        return {error: 'bad url'}
+      })
+      .then(displayResults)
+  };
+
+  function getUserByTokenId(tokenId) {
+    return $http.get('user1.json', {params: {tokenId: tokenId}});
+  }
+  function getPermissionByUserId(userId) {
+    return $http.get('permissions2.json', {params: {userId: userId}});
+  }
+  function displayResults(response) {
+    vm.results = response;
+  }
+});
+      </code></pre>
+    </div>
+    <script>
+      app.controller('test2Ctrl', function($q, $http) {
+        var vm = this;
+
+        vm.showResults = function() {
+          $q.resolve('tokenId12306')
+            .then(getUserByTokenId)
+            .then(null, function() {
+              return 'userId';
+            })
+            .then(getPermissionByUserId)
+            .catch(function() {
+              return {error: 'bad url'}
+            })
+            .then(displayResults)
+        };
+
+        function getUserByTokenId(tokenId) {
+          return $http.get('user1.json', {params: {tokenId: tokenId}});
+        }
+        function getPermissionByUserId(userId) {
+          return $http.get('permissions2.json', {params: {userId: userId}});
+        }
+        function displayResults(response) {
+          vm.results = response;
+        }
+      });
+    </script>
+  </div>
+  <div class="row" ng-controller="test3Ctrl as vm">
+    <dir class="col-md-6">
+      <p> Example 2</p>
+      <p> <button class="btn btn-primary" type="button" ng-click="vm.showResults()">查看用户和用户权限</button> </p>
+      <p ng-bind="vm.results|json" style="border:1px solid #ccc; height: 2.4rem;"></p>
+    </dir>
+    <dir class="col-md-6">
+      <pre><code>
+app.controller('test3Ctrl', function($q, $http) {
+  var vm = this;
+
+  vm.showResults = function() {
+    $q.all([
+        getUserByTokenId('tokenId'),
+        getPermissionByUserId('userId')
+      ])
+      .then(displayResults)
+  };
+
+  function getUserByTokenId(tokenId) {
+    return $http.get('user.json', {params: {tokenId: tokenId}});
+  }
+  function getPermissionByUserId(userId) {
+    return $http.get('permissions.json', {params: {userId: userId}});
+  }
+  function displayResults(responses) {
+    vm.results = angular.extend({}, responses[0].data, responses[1].data);
+  }
+});
+      </code></pre>
+    </dir>
+    <script>
+    app.controller('test3Ctrl', function($q, $http) {
+      var vm = this;
+
+      vm.showResults = function() {
+        $q.all([
+            getUserByTokenId('tokenId'),
+            getPermissionByUserId('userId')
+          ])
+          .then(displayResults)
+      };
+
+      function getUserByTokenId(tokenId) {
+        return $http.get('user.json', {params: {tokenId: tokenId}});
+      }
+      function getPermissionByUserId(userId) {
+        return $http.get('permissions.json', {params: {userId: userId}});
+      }
+      function displayResults(responses) {
+        vm.results = angular.extend({}, responses[0].data, responses[1].data);
+      }
+    });
+    </script>
+  </div>
+  <script src='../../plugin/highlight/highlight.js'></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+  </script>
+</body>
+</html>
